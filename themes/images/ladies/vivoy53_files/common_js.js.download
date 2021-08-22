@@ -1,0 +1,441 @@
+function add_wishlist(a) {
+    var e = new FormData();
+    e.append("id", a),
+        $.ajax({ type: "POST", dataType: "JSON", url: baseURL + "add-wishlist", cache: !1, contentType: !1, processData: !1, data: e }).done(function (e) {
+            e.status
+                ? ($("#add-wishlist-" + a).removeClass("icon-Heart add-wishlist"), $("#add-wishlist-" + a).addClass("icon-Heart-Select instant-remove-wishlist"), $("#add-wishlist-" + a).attr("data-wish-id", e.wish_id))
+                : e.url_forward && (window.location.href = e.url_forward);
+        });
+}
+var isRequestEnable = !0;
+function view_product(a) {
+    if (isRequestEnable) {
+        (isRequestEnable = !1), ($variantHTML = ""), $("#variant_div").html($variantHTML);
+        var e = new FormData();
+        e.append("id", a),
+            $.ajax({ type: "POST", dataType: "JSON", url: baseURL + "view-product", cache: !1, contentType: !1, processData: !1, data: e }).done(function (a) {
+                if (a.status) {
+                    if (
+                        ((isRequestEnable = !0),
+                        $("#product-name").html(a.data.name),
+                        $("#product-image").attr("src", a.data.image),
+                        $("#add-cart").attr("data-id", a.data.id),
+                        "" != a.data.pre_book_price
+                            ? ($("#product-pre-book-price").html('<span>Pre-Booking Price : <i class="fa fa-inr"></i>' + a.data.pre_book_price + "</span>"),
+                              ($priceHTML = ""),
+                              "" != a.data.special_price
+                                  ? (($priceHTML += '<b><i class="fa fa-inr"></i>' + Math.round(a.data.special_price) + "</b>&nbsp;&nbsp;"),
+                                    ($priceHTML += '<span style="text-decoration:line-through"><i class="fa fa-inr"></i>' + Math.round(a.data.price) + "</span>"))
+                                  : ($priceHTML += '<span><i class="fa fa-inr"></i>' + Math.round(a.data.price) + "</span>"),
+                              $("#product-price").html($priceHTML))
+                            : (($priceHTML = ""),
+                              "" != a.data.special_price
+                                  ? (($priceHTML += '<b><i class="fa fa-inr"></i>' + Math.round(a.data.special_price) + "</b>&nbsp;&nbsp;"),
+                                    ($priceHTML += '<span style="text-decoration:line-through"><i class="fa fa-inr"></i>' + Math.round(a.data.price) + "</span>"))
+                                  : ($priceHTML += '<span><i class="fa fa-inr"></i>' + Math.round(a.data.price) + "</span>"),
+                              $("#product-price").html($priceHTML)),
+                        "" != a.data.variant)
+                    ) {
+                        for (var e = 0; e < a.data.variant.length; e++)
+                            if ("colors" == (i = a.data.variant[e].variant_name)) {
+                                for (var t = 0; t < a.data.variant[e][i].length; t++) a.data.code == a.data.variant[e][i][t].product_code && ($color_name = a.data.variant[e][i][t].value);
+                                for (
+                                    $variantHTML += ' <p class="color-variant display-inline-block">',
+                                        $variantHTML += '<span class="color-var-head">Colors</span> : <span id="color_name"><b> ' + $color_name + "</b></span></p>",
+                                        $variantHTML += '<div class="display-block">',
+                                        t = 0;
+                                    t < a.data.variant[e][i].length;
+                                    t++
+                                )
+                                    ($variant_color_name = ""),
+                                        ($variantHTML += '<div class="display-inline-block pos-rltv">'),
+                                        a.data.code == a.data.variant[e][i][t].product_code
+                                            ? ($variantHTML += '<input type="radio" id="radio' + t + '" name="radio" checked/>')
+                                            : ($variantHTML += '<input type="radio" id="radio' + t + '" name="radio"/>'),
+                                        ($variantHTML += '<label for="radio' + t + '" class="color_var" title="' + a.data.variant[e][i][t].value + '"><span></span>'),
+                                        ($variant_color_name = a.data.variant[e][i][t].value),
+                                        ($variantHTML +=
+                                            '<a href="' +
+                                            baseURL +
+                                            "product-details/" +
+                                            a.data.variant[e][i][t].product_name +
+                                            "/" +
+                                            a.data.variant[e][i][t].product_code +
+                                            '" class="direct_link"><span class="color-variant-sg"><img src="' +
+                                            a.data.variant[e][i][t].image +
+                                            '" alt="black" class="img-responsive img-color-change" data-id="' +
+                                            $variant_color_name +
+                                            '"></span></a>'),
+                                        ($variantHTML += "</label>"),
+                                        ($variantHTML += "</div>");
+                                $variantHTML += "</div>";
+                            }
+                        for ($variantHTML += '<div class="row">', e = 0; e < a.data.variant.length; e++) {
+                            var i;
+                            if ("colors" != (i = a.data.variant[e].variant_name)) {
+                                if ("ram" == i) var n = i.toUpperCase();
+                                else n = jsUcfirst(i);
+                                for (
+                                    $variantHTML += '<div class="col-md-6">',
+                                        $variantHTML += '<div class="color-var-head">',
+                                        $variantHTML += "<p>" + n + "</p>",
+                                        $variantHTML += '<select class="form-control custom_select" onchange="get_product(this.value)">',
+                                        t = 0;
+                                    t < a.data.variant[e][i].length;
+                                    t++
+                                )
+                                    $variantHTML += '<option value="' + a.data.variant[e][i][t].product_code + '">' + a.data.variant[e][i][t].value + "</option>";
+                                ($variantHTML += "</select>"), ($variantHTML += "</div>"), ($variantHTML += "</div>");
+                            }
+                        }
+                        ($variantHTML += "</div>"), $("#variant_div").append($variantHTML);
+                    }
+                    $("#myModal-view").modal("show");
+                } else isRequestEnable = !0;
+            });
+    }
+}
+function add_to_cart(a, e = "") {
+    
+    var t = new FormData();
+    t.append("product_id", a);
+
+    var pathname = window.location.pathname;
+    var pathArray = pathname.split('/');
+
+    var filtered = pathArray.filter(function (el) {
+      return el != '';
+    });
+
+    console.log(filtered[0]);
+
+    $.ajax({ 
+        type: "POST", 
+        dataType: "JSON", 
+        url: baseURL + "add2cart", 
+        cache: !1, 
+        contentType: !1, 
+        processData: !1, 
+        data: t 
+    }).done(function (json) {
+
+        if(json.status){
+
+            if(filtered[0] == 'product-details'){
+                var prodName    = $('.product-name').html();
+                var prodPrice   = $('.p-d-price').text().trim();
+                var prodSku     = $('#add2cart').attr('data-product-id');
+            }else{
+                var prodName    = $('.product-' + a).find('.mtb-title').text();
+                var prodPrice   = $('.product-' + a).find('.price').text();
+                var prodSku     = a;
+            }
+
+            console.log('prodName ' + prodName);
+            console.log('prodPrice ' + prodPrice);
+            console.log('prodPrice ' + Number(prodPrice).toFixed(2));
+
+            dataLayer.push({
+                'event': 'addToCart',
+                'ecommerce': {
+                    'currencyCode': 'INR',
+                    'add': {                                
+                        'products': [{
+                            'name': prodName,
+                            'id': prodSku,
+                            'price': prodPrice,
+                            'quantity': 1
+                        }]
+                    }
+                },
+                'btnClass': 'add-2-cart'
+            });
+
+            fbq('track', 'AddToCart', {
+               
+               content_name: prodName,
+               contents: [{id: prodSku, quantity : 1}],
+               content_type: 'product',
+               value: Number(prodPrice).toFixed(2),
+               currency: 'INR',
+            }); 
+
+            //track_event('addTocart');
+            //fbq('track', 'AddToCart');
+
+            //return false;
+
+            setTimeout(function(){ window.location.href = json.url_forward; }, 2000);
+
+        }else{
+            if(e != '')
+            {
+                $('#'+e).html('<span style="color:red">'+json.message+'</span>');
+            }
+            else
+            {
+                custom_alert(json.message, 'error');
+            }
+        }
+    });
+}
+function wishlist_to_cart(a) {
+    var e = new FormData();
+    e.append("product_id", a),
+        e.append("type", "wishlist"),
+        $.ajax({ type: "POST", dataType: "JSON", url: baseURL + "add2cart", cache: !1, contentType: !1, processData: !1, data: e }).done(function (a) {
+            a.status ? (window.location.href = a.url_forward) : custom_alert(a.message);
+        });
+}
+function remove_wishlist1(a, e) {
+    var t = new FormData();
+    t.append("id", a),
+        $.ajax({ type: "POST", dataType: "JSON", url: baseURL + "remove-wishlist", cache: !1, contentType: !1, processData: !1, data: t }).done(function (a) {
+            a.status && ($("#add-wishlist-" + e).removeClass("icon-Heart-Select instant-remove-wishlist"), $("#add-wishlist-" + e).addClass("icon-Heart add-wishlist"), $("#add-wishlist-" + e).attr("data-wish-id", ""));
+        });
+}
+function remove_wishlist(a) {
+    var e = new FormData();
+    e.append("id", a),
+        $.ajax({ type: "POST", dataType: "JSON", url: baseURL + "remove-wishlist", cache: !1, contentType: !1, processData: !1, data: e }).done(function (a) {
+            a.status ? window.location.reload(!0) : a.url_forward || custom_alert(a.message);
+        });
+}
+$(document).ready(function () {
+    $(".view-product").click(function (a) {
+        a.preventDefault(), view_product($(this).attr("data-id"));
+    }),
+        $(".add-to-cart").click(function (a) {
+            a.preventDefault(), 
+            add_to_cart($(this).attr("data-id"), "");
+        }),
+        $(".add-to-cart-modal").click(function (a) {
+            a.preventDefault(), add_to_cart($("#add-cart").attr("data-id"), "quick-view-cart-status");
+        }),
+        $(".add-to-cart-wishlist").click(function (a) {
+            a.preventDefault(), wishlist_to_cart($(this).attr("data-id"));
+        }),
+        $("#rating-submit").click(function (a) {
+            a.preventDefault(), add_review();
+        }),
+        $("#product-review-submit").click(function (a) {
+            a.preventDefault(), add_review("submit");
+        }),
+        $(".frm-submit1").click(function (a) {
+            a.preventDefault(), add_form_details(1);
+        }),
+        $(".frm-submit2").click(function (a) {
+            a.preventDefault(), add_form_details(2);
+        }),
+        $(".remove-wishlist").click(function (a) {
+            a.preventDefault(), remove_wishlist($(this).attr("data-id"));
+        });
+}),
+    $(document).on("click", ".add-wishlist", function (a) {
+        a.preventDefault(), add_wishlist($(this).attr("data-id"));
+    }),
+    $(document).on("click", ".instant-remove-wishlist", function (a) {
+        a.preventDefault(), remove_wishlist1($(this).attr("data-wish-id"), $(this).attr("data-id"));
+    });
+var textarea = document.querySelector("textarea");
+function add_review(reviewType = "check") {
+    var a = new FormData();
+    return (
+        a.append("product_id", $("#product-id").val()),
+        a.append("title", $("#rating-title").val()),
+        a.append("comments", $("#r-review").val()),
+        a.append("type", reviewType),
+        a.append("rating", $("input:radio[name=star-horizontal-rating]:checked").val()),
+        "" == $("#rating-title").val()
+            ? ($("#review-status").html("Please Enter the Title"), statusHide("review-status"), !0)
+            : "" == $("#r-review").val()
+            ? ($("#review-status").html("Please Enter the review description"), statusHide("review-status"), !0)
+            : null == $("input:radio[name=star-horizontal-rating]:checked").val()
+            ? ($("#review-status").html("Please Choose any rating"), statusHide("review-status"), !0)
+            : void $.ajax({ type: "POST", dataType: "JSON", url: baseURL + "add-review", cache: !1, contentType: !1, processData: !1, data: a }).done(function (a) {
+
+                 if(reviewType == "submit"){
+
+                  if(a.status){
+
+                     custom_alert(a.message);
+                     window.location.reload(true);
+                  }else{
+
+                    if(a.url_forward == ''){
+
+                        custom_alert(a.message,'error');
+
+                    }else{
+
+                        custom_alert(a.message, "error", "login", "login");
+                    }
+                  }
+                }
+
+                if(reviewType != "submit"){
+
+                  if(a.status){
+
+                     $("#product-review").modal("show");
+                     $("#confirm-product-rating-title").val(a.data['rating_title']);
+                     $("#confirm-product-rating").val(a.data['rating_value']);
+                     $("#confirm-product-review").val(a.data['comments']);
+                     $("#success-status").html(json.message);
+                  }else{
+
+                    if(a.url_forward == ''){
+
+                        custom_alert(a.message,'error');
+
+                    }else{
+
+                        custom_alert(a.message, "error", "login", "login");
+                    }
+                  }
+                }
+                  //a.status ? (custom_alert(a.message), window.location.reload(!0)) : custom_alert(a.message, "error", "login", "login");
+              })
+    );
+}
+function statusHide(a) {
+    setTimeout(function () {
+        $("#" + a).html("");
+    }, 4e3);
+}
+function add_form_details(a) {
+    var e = new FormData(),
+        t = a;
+    if (1 == t)
+        var i = $("#name").val(),
+            n = $("#mobile_number").val(),
+            s = $("#city").val();
+    2 == t && ((i = $("#name1").val()), (n = $("#mobile_number1").val()), (s = $("#city1").val())),
+        e.append("form_id", t),
+        e.append("name", i),
+        e.append("mobile_number", n),
+        e.append("city", s),
+        $.ajax({ type: "POST", dataType: "JSON", url: baseURL + "add-form-data", cache: !1, contentType: !1, processData: !1, data: e }).done(function (e) {
+            e.status
+                ? (2 == a ? $("#zest-status").html('<span style="color:white">' + e.message + "</span>") : $("#hdfc-status").html('<span style="color:white">' + e.message + "</span>"), window.location.reload(!0))
+                : 2 == a
+                ? $("#zest-status").html('<span style="color:white">' + e.message + ' <sup style="color:red">*</sup></span>')
+                : $("#hdfc-status").html('<span style="color:white">' + e.message + ' <sup style="color:red">*</sup></span>');
+        });
+}
+function jsUcfirst(a) {
+    return a.charAt(0).toUpperCase() + a.slice(1);
+}
+function get_product(a) {
+    var e = new FormData();
+    e.append("product_code", a),
+        $.ajax({ type: "POST", dataType: "JSON", url: baseURL + "get_product", cache: !1, contentType: !1, processData: !1, data: e }).done(function (a) {
+            a.status ? (window.location.href = a.url_forward) : window.location.reload(!0);
+        });
+}
+function showModal(a) {
+    $("#" + a).fadeIn("slow");
+}
+function hideModal(a) {
+    $("#" + a).fadeOut("slow"),
+        $(".activeSan").removeClass("activeSan"),
+        $("#toggleSan1").addClass("activeSan"),
+        $(".tab-pane").removeClass("active"),
+        $(".user-experience").val(""),
+        $(".next-feedback-option").attr("data-id", "1"),
+        $(".next-feedback-option").html("send"),
+        $("#feedback-class-div").removeClass(),
+        $("#feedback-class-div").addClass("feedback-textarea");
+}
+$(document).ready(function () {
+    $('[data-toggle="tooltip"]').tooltip();
+}),
+    $(window).on("load", function () {
+        $("#loadingSan").slideUp(), $("#slidesSan").fadeIn("slow"), $(".toggleSan.activeSan").length || $(".toggleSan").first().addClass("activeSan");
+    }),
+    $("#previous").click(function () {
+        var a = $(".activeSan").prev(".toggleSan");
+        a.length || (a = $(".toggleSan").last()), $(".activeSan").removeClass("activeSan"), a.addClass("activeSan");
+    }),
+    $(".next-feedback-option").click(function () {
+        var a = $(".activeSan").next(".toggleSan"),
+            e = $(this).attr("data-id");
+        if ((a.length || (a = $(".toggleSan").first()), $(".activeSan").removeClass("activeSan"), a.addClass("activeSan"), 3 != e && $("#next").prop("disabled", !0), 1 == e && $(".next-feedback-option").attr("data-id", "2"), 2 == e)) {
+            var t = new FormData(),
+                i = $("#user-email").val(),
+                n = selected_emoji,
+                s = $(".user-experience").val();
+            t.append("email", i),
+                t.append("feedback", n),
+                t.append("feedback_comment", s),
+                $.ajax({ type: "POST", dataType: "JSON", url: baseURL + "add-feedback-data", cache: !1, contentType: !1, processData: !1, data: t }).done(function (a) {
+                    a.status
+                        ? ($("#feedback-div").attr("hidden", !1), $(".next-feedback-option").html("Close"), $(".next-feedback-option").attr("data-id", "3"), $("#next").prop("disabled", !1))
+                        : ($("#feedback-div").attr("hidden", !1), $(".next-feedback-option").html("close"), $(".next-feedback-option").attr("data-id", "3"), $("#next").prop("disabled", !1));
+                });
+        }
+        3 == e &&
+            ($("#delAll1").fadeOut("slow"),
+            $(".activeSan").removeClass("activeSan"),
+            $("#toggleSan1").addClass("activeSan"),
+            $(".tab-pane").removeClass("active"),
+            $(".user-experience").val(""),
+            $(".next-feedback-option").attr("data-id", "1"),
+            $("#feedback-class-div").removeClass(),
+            $("#feedback-class-div").addClass("feedback-textarea"));
+    });
+var selected_emoji = "";
+function checkemail(a) {
+    return 1 == /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(a);
+}
+$(document).on("click", ".nav-link", function (a) {
+    a.preventDefault(),
+        (selected_emoji = $(this).attr("data-id")),
+        $(".tab-pane").addClass("active"),
+        1 == selected_emoji && ($("#feedback-class-div").removeClass(), $("#feedback-class-div").addClass("feedback-textarea1")),
+        2 == selected_emoji && ($("#feedback-class-div").removeClass(), $("#feedback-class-div").addClass("feedback-textarea2")),
+        3 == selected_emoji && ($("#feedback-class-div").removeClass(), $("#feedback-class-div").addClass("feedback-textarea3")),
+        4 == selected_emoji && ($("#feedback-class-div").removeClass(), $("#feedback-class-div").addClass("feedback-textarea4")),
+        5 == selected_emoji && ($("#feedback-class-div").removeClass(), $("#feedback-class-div").addClass("feedback-textarea5"));
+}),
+    $(document).ready(function () {
+        $(".user-experience").keyup(function (a) {
+            a.preventDefault(), $(".user-experience").val().length > 3 ? $("#next").prop("disabled", !1) : $("#next").prop("disabled", !0);
+        });
+    }),
+    $(document).ready(function () {
+        $("#user-email").keyup(function (a) {
+            a.preventDefault(), ($checkemail = checkemail($("#user-email").val())), $checkemail ? $("#next").prop("disabled", !1) : $("#next").prop("disabled", !0);
+        });
+    }),
+    $(document).on("mouseover", ".img-color-change", function () {
+        var a = $(this).attr("data-id");
+        $("#color_name").html("<b>" + a + "</b>");
+    });
+
+function track_event(trackEvent ="", data =""){
+
+    var trackingEventName = null;
+
+    trackingEvent = trackEvent;
+
+    if(trackingEvent != ""){
+
+        switch (trackingEvent) {
+
+          case 'addTocart':
+            trackingEventName = 'AddToCart';
+            break;
+          case 'addTowishlist':
+            trackingEventName = 'AddToWishlist';
+            break;
+          case 'registration':
+            trackingEventName = 'CompleteRegistration';
+            break;
+          default:
+        }
+    }
+
+    fbq('track', trackingEventName);
+    console.log('Tracking Name: '+trackingEventName); 
+}

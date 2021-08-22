@@ -1,0 +1,281 @@
+/**
+ * Loaded by customer
+ */
+
+var themeId;
+var phoneRegex="";
+
+function getThemeId(){
+	if(!themeId){
+		themeId=getParameterByName("themeId");
+	}
+    return themeId;		 
+}
+
+function getScreenMode(){
+	 return getParameterByName("screenMode");		 
+}
+
+function getGAUID(){
+	return getParameterByName("GAUID");
+}
+
+function enableChat(campaignId,nodeflowId,baseUrl,contextData,queueId,GAUID,locale){
+	var resizerScript = document.createElement("script");
+	resizerScript.type="text/javascript";
+	
+	if(!baseUrl){
+		resizerScript.src=getBaseUrl()+"/ameyochatjs/js/iframeResizer.min.js";
+	}else {
+		resizerScript.src=baseUrl+"/ameyochatjs/js/iframeResizer.min.js";
+	}
+	//resizerScript.src="http://127.0.0.1:8888/ameyochatjs/js/iframeResizer.min.js";
+	document.head.appendChild(resizerScript);
+	resizerScript.onload = function(event){
+		var isOldIE = (navigator.userAgent.indexOf("MSIE") !== -1); // Detect IE10 and below
+
+		iFrameResize( {
+			widthCalculationMethod: isOldIE ? 'max' : 'rightMostElement'
+		});
+	}
+	ifrm = document.createElement("IFRAME");
+	
+	var themeId=getThemeId();
+	
+	var screenMode=getScreenMode();
+		
+	var url=getBaseUrl()+"/ameyochatjs/embeddedCustomerChat.html?nodeflowId="+nodeflowId+"&campaignId="+campaignId+"&queueId="+queueId+"&contextData="+contextData+"&themeId="+themeId+"&screenMode="+screenMode+"&GAUID="+GAUID+"&locale="+locale+"&phoneRegex="+phoneRegex;
+	if(baseUrl){
+		url=baseUrl+"/ameyochatjs/embeddedCustomerChat.html?nodeflowId="+nodeflowId+"&campaignId="+campaignId+"&queueId="+queueId+"&contextData="+contextData+"&themeId="+themeId+"&screenMode="+screenMode+"&GAUID="+GAUID+"&locale="+locale+"&phoneRegex="+phoneRegex;
+	}
+	//"http://127.0.0.1:8888/ameyochatjs/embeddedCustomerChat.html"
+	ifrm.setAttribute("src", url);
+	ifrm.setAttribute("name","cboxmain");
+	ifrm.setAttribute("id","cboxmain");
+	ifrm.setAttribute("marginheight","1");
+	ifrm.setAttribute("marginwidth","1");
+	ifrm.setAttribute("seamless","seamless");
+	ifrm.setAttribute("scrolling","no");
+	ifrm.setAttribute("allowtransparency","true");
+	ifrm.frameBorder = 0;
+	ifrm.style.width = "330px";
+	ifrm.style.maxWidth = "100%";
+	ifrm.style.position = "fixed";
+	ifrm.style.bottom = "0";
+	ifrm.style.right = "0";
+	ifrm.style.zIndex = "100";
+	document.body.appendChild(ifrm);
+}
+
+
+function enableChatWithCustomerData(campaignId,nodeflowId,customerName,customerEmail,customerPhone,ap,baseUrl,contextData,queueId,GAUID,locale){
+	var resizerScript = document.createElement("script");
+	resizerScript.type="text/javascript";
+	
+	if(!baseUrl){
+		resizerScript.src=getBaseUrl()+"/ameyochatjs/js/iframeResizer.min.js";
+	}else {
+		resizerScript.src=baseUrl+"/ameyochatjs/js/iframeResizer.min.js";
+	}
+	//resizerScript.src="http://127.0.0.1:8888/ameyochatjs/js/iframeResizer.min.js";
+	document.head.appendChild(resizerScript);
+	resizerScript.onload = function(event){
+		var isOldIE = (navigator.userAgent.indexOf("MSIE") !== -1); // Detect IE10 and below
+
+		iFrameResize( {
+			widthCalculationMethod: isOldIE ? 'max' : 'rightMostElement'
+		});
+	}
+	ifrm = document.getElementById("cboxmain");
+	if(!ifrm){
+		ifrm = document.createElement("IFRAME");
+	}
+
+	var themeId=getThemeId();
+	
+	var screenMode=getScreenMode();	
+	
+	var url=getBaseUrl()+"/ameyochatjs/embeddedCustomerChat.html?nodeflowId="+nodeflowId+"&campaignId="+campaignId+"&queueId="+queueId+"&customerName="+customerName+"&email="+customerEmail+"&phone="+customerPhone+"&additionalParams="+ap+"&contextData="+contextData+"&themeId="+themeId+"&screenMode="+screenMode+"&thirdPartyChatForm="+true+"&GAUID="+GAUID+"&locale="+locale+"&phoneRegex="+phoneRegex;
+	if(baseUrl){
+		url=baseUrl+"/ameyochatjs/embeddedCustomerChat.html?nodeflowId="+nodeflowId+"&campaignId="+campaignId+"&queueId="+queueId+"&customerName="+customerName+"&email="+customerEmail+"&phone="+customerPhone+"&additionalParams="+ap+"&contextData="+contextData+"&themeId="+themeId+"&screenMode="+screenMode+"&thirdPartyChatForm="+true+"&GAUID="+GAUID+"&locale="+locale+"&phoneRegex="+phoneRegex;
+	}
+	//"http://127.0.0.1:8888/ameyochatjs/embeddedCustomerChat.html"
+	ifrm.setAttribute("src", url);
+	ifrm.setAttribute("name","cboxmain");
+	ifrm.setAttribute("id","cboxmain");
+	ifrm.setAttribute("marginheight","1");
+	ifrm.setAttribute("marginwidth","1");
+	ifrm.setAttribute("seamless","seamless");
+	ifrm.setAttribute("scrolling","no");
+	ifrm.setAttribute("allowtransparency","true");
+	ifrm.frameBorder = 0;
+	ifrm.style.width = "330px";
+	ifrm.style.maxWidth = "100%";
+	ifrm.style.position = "fixed";
+	ifrm.style.bottom = "0";
+	ifrm.style.right = "0";
+	ifrm.style.zIndex = "100";
+	document.body.appendChild(ifrm);
+}
+
+function getUrlQuery(){
+	return window.location.search;
+}
+function getBaseUrl(){
+	var url=window.location.origin;
+	if(!url){
+		url="http://127.0.0.1:8888/";
+		console.warn("initializing chat with localhost url");
+	}
+	return url;
+}
+
+// to be called to start chat
+function initializeChat(campaignId,nodeflowId,baseUrl,customerContext,queueId,GAUID,themeID,locale, phoneNoRegex){
+	themeId=themeID;
+	if(phoneNoRegex)
+	phoneRegex=phoneNoRegex;
+	if(!document.getElementById("cboxmain")) {
+	 if(!nodeflowId){
+		 nodeflowId=getParameterByName("nodeflowId");		 
+	 }
+	 if(!campaignId){
+		 campaignId=getParameterByName("campaignId");		 
+	 }
+	 if(!queueId){
+		 queueId=getParameterByName("queueId");		 
+	 }
+	 var error=false;
+	 if(!nodeflowId || nodeflowId==""){
+		 console.error("Initialize Chat ERROR: nodeflowId not provided");
+		 error=true;
+	 }
+	 if(!queueId || queueId == "") {
+		 if(!campaignId || campaignId==""){
+			 console.error("Initialize Chat ERROR: campaignId or queueId not provided");
+			 error=true;
+		 }
+	 }
+	 
+	 if(!customerContext){
+		 customerContext=encodeURIComponent(getParameterByName("customerContext"));	
+		
+	 }
+	 if(!GAUID){
+		 GAUID=encodeURIComponent(getParameterByName("GAUID"));		
+	 }
+	 if(!locale){
+		 locale=getParameterByName("locale");		 
+	 }
+	 if(!customerContext || customerContext=='' || customerContext=='undefined'){
+		 console.log("No customer context data provided, hence using default context");
+		 customerContext=[];
+		 var titleContextObject={
+				 key:'Page Title',
+					value:'Page title is \'' + document.title + '\''
+		 };
+		 customerContext[0]=titleContextObject;
+		 customerContext= encodeURIComponent(JSON.stringify(customerContext));
+	 }
+	 
+	 customerName=getParameterByName("customerName");
+	 customerEmail=getParameterByName("email");
+	 customerPhone=getParameterByName("phone");
+	 ap=getParameterByName("additionalParams");
+	 if(!error){
+		 if((customerName && customerName!="") && (customerEmail && customerEmail!="") && (customerPhone && customerPhone!="")){
+			 console.log("Found customer data in url, customerName = %s , email = %s , phone = %s , ap = %s",customerName,customerEmail,customerPhone,ap);
+			 enableChatWithCustomerData(campaignId,nodeflowId,customerName,customerEmail,customerPhone,ap,baseUrl,customerContext,queueId,GAUID,locale); 
+		 }else{
+		 enableChat(campaignId,nodeflowId,baseUrl,customerContext,queueId,GAUID,locale);
+		 }
+	 }
+	}
+}
+function getParameterByName(variable, url) {
+	
+    if (!url) url = window.location.href;
+    
+        var query = window.location.search.substring(1);
+        var vars = query.split('&');
+        for (var i = 0; i < vars.length; i++) {
+            var pair = vars[i].split('=');
+            if (decodeURIComponent(pair[0]) == variable) {
+                return decodeURIComponent(pair[1]);
+            }
+        }
+        return "";
+        console.log('Query variable %s not found', variable);
+}
+
+function openChatBox(campaignId,nodeflowId,baseUrl,timeOut,customerInfo,additionalParams,customerContext,queueId,GAUID) {
+
+	if(!document.getElementById("cboxmain")) {
+		if(!campaignId || campaignId == "") {
+			console.error("Initialize Chat ERROR: campaignId not provided");
+			return "Initialize Chat ERROR: campaignId not provided";
+		}
+		if(!nodeflowId || nodeflowId == "") {
+			console.error("Initialize Chat ERROR: nodeflowId not provided");
+			return "Initialize Chat ERROR: nodeflowId not provided";
+		}
+		try {
+			initializeChat(campaignId,nodeflowId,baseUrl,customerContext,queueId,GAUID);
+		} catch (err) {
+			console.error("start page tracking resulted in error: " + err);
+			return "start page tracking resulted in error: " + err;
+		}
+		if(timeOut) {
+			setTimeout(function() { triggerChatBox(customerInfo,additionalParams,customerContext); }, timeOut );
+		}			
+	}
+}
+
+function triggerChatBox(customerInfo,additionalParams,customerContext) {
+	
+	if(!additionalParams) {
+		additionalParams = "{}";
+	}
+	if(!customerInfo) {
+		customerInfo = "{}";
+	}
+	try {
+        JSON.parse(customerInfo);
+    } catch (e) {
+    	customerInfo = "{}";
+    }
+    
+    if(!customerContext) {
+    	customerContext = "";
+	}
+    customerInfoObj = JSON.parse(customerInfo);
+	Name = (customerInfoObj.name) ? customerInfoObj.name : '';
+	emailid = (customerInfoObj.email) ? customerInfoObj.email : '';
+	phoneNo = (customerInfoObj.phone) ? customerInfoObj.phone : '';
+	if (!(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(emailid)) && emailid != "") {
+		console.error("Unable to Initialize Chat: Emailid is Not Valid");
+		return "Unable to Initialize Chat: Emailid is Not Valid";
+	}
+	if(!(/^[A-Za-z ]+$/.test(Name)) && Name != "") {
+		console.error("Unable to Initialize Chat: Name is Not Valid");
+		return "Unable to Initialize Chat: Name is Not Valid";
+	}
+	if(!(/^\d{10}$/.test(phoneNo)) && phoneNo != "") {
+		console.error("Unable to Initialize Chat: PhoneNo is Not Valid");
+		return "Unable to Initialize Chat: PhoneNo is Not Valid";
+	}
+	if(!document.getElementById("cboxmain")) {
+		console.error("Error : Chat Box not found, first Initialize Chat Box");
+		return "Error : Chat Box not found, first Initialize Chat Box";
+	} else {
+		try {
+			cboxmain.triggerChat(Name.toString(),emailid.toString(),phoneNo.toString(),additionalParams,customerContext);
+		} catch (e) {
+			setTimeout( function() { triggerChatBox(customerInfo,additionalParams,customerContext) }, 1000);
+		}
+	}
+	return "Chat Started";
+}
+//window.onload = function(event){
+//	initializeChat(4,2,"","",null,null,null,null, null);
+//}

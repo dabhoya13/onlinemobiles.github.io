@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<!-- saved from url=(0355)https://ameyo.sangeethamobiles.net:8443/ameyochatjs/embeddedCustomerChat.html?nodeflowId=1&campaignId=3&queueId=&contextData=%5B%7B%22key%22%3A%22Page%20Title%22%2C%22value%22%3A%22Page%20title%20is%20%27Buy%20Vivo%20Y53s%20online%20-%20Price%2C%20Reviews%20%26%20Specs%20%7C%20Sangeethamobiles%27%22%7D%5D&themeId=1&screenMode=&GAUID=&locale=&phoneRegex= -->
+<html manifest="chat.appcache"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link type="text/css" rel="stylesheet" href="./materialdesignicons.min.css">
+<link type="text/css" rel="stylesheet" href="./style.css">
+<title>DCA Customer Page</title>
+<link rel="stylesheet" href="./twemoji-picker.css">
+<script type="text/javascript" src="./jquery-2.2.4.min.js.download"></script>
+<script src="./twemoji-picker.js.download"></script>
+<script type="text/javascript" language="javascript" src="./embeddedChatXS.nocache.js.download"></script><link rel="stylesheet" href="./standard.css"><link rel="stylesheet" href="./bootstrap-3.3.2.min.cache.css"><link rel="stylesheet" href="./font-awesome-4.3.0.min.cache.css"><script src="./F3888B345E96B348ABE98DAAD6ED4DFE.cache.js.download"></script>
+<script type="text/javascript" language="javascript" src="./iframeResizer.contentWindow.min.js.download"></script>
+<script type="text/javascript" src="./twemoji.js.download"></script>
+<script type="text/javascript">
+var isGAEnabled = false;
+var isAmeyoLetsChatShowEnabled = false;
+var getAppMode = false;
+var shouldCheckThemeConfiguration = true;
+var isCobrowsingEnabled = false;
+//To be called by clients using chat to init nodeflow and campaignId
+function initializeChat(){
+		initializeChat(null,null,null);
+	}
+	
+function initializeChat(nodeflowId,campaignId,queueId){
+
+	 if(!nodeflowId){
+		 nodeflowId=getParameterByName("nodeflowId");		 
+	 }
+	 if(!campaignId){
+		 campaignId=getParameterByName("campaignId");		 
+	 }
+	 if(!queueId){
+		 queueId=getParameterByName("queueId");		 
+	 }
+	 if(!nodeflowId || nodeflowId==""){
+		 console.error("Initialize Chat ERROR: nodeflowId not provided");		 
+	 }
+	 if(!campaignId || campaignId==""){
+		 console.error("Initialize Chat ERROR: campaignId not provided");		 
+	 }
+	 
+	 customerName=getParameterByName("customerName");
+	 customerEmail=getParameterByName("email");
+	 customerPhone=getParameterByName("phone");
+	 additionalParams=getParameterByName("additionalParams");
+	 thirdPartyChatForm=getParameterByName("thirdPartyChatForm");
+	 customerContext=getParameterByName("contextData");
+	 themeId=getParameterByName("themeId");
+	 screenMode=getParameterByName("screenMode");
+	 GAUID=getParameterByName("GAUID");
+	 phoneRegex=getParameterByName("phoneRegex");
+	 
+	 if(!customerName || customerName==""){
+		 console.log("Initialize Chat INFO: customerName not provided");		 
+	 }
+	 if(!customerEmail || customerEmail==""){
+		 console.log("Initialize Chat INFO: customerEmail not provided");		 
+	 }
+	 if(!customerPhone || customerPhone==""){
+		 console.log("Initialize Chat INFO: customerPhone not provided");		 
+	 }
+	 
+	 if(!additionalParams || additionalParams==""){
+		 additionalParams="";
+	 }
+	 
+	 if(!thirdPartyChatForm || thirdPartyChatForm==""){
+		 console.log("thirdPartyChatForm not used");		 
+	 }
+	 
+	 
+	 if(!customerContext || customerContext==""){
+		 console.log("no context data provided");		 
+	 }
+	 
+	 if(!themeId || themeId==""){
+		 console.log("Initialize Chat INFO: themeId not provided");		 
+	 }
+	 document.ameyoServerIp = getBaseUrl();
+		document.nodeflowId = nodeflowId;
+		document.contextId = campaignId;
+		document.queueContextId = queueId;
+		document.customerName=customerName;
+		document.email=customerEmail;
+		document.phone=customerPhone;
+		document.additionalParams=additionalParams;
+		document.thirdPartyChatForm = thirdPartyChatForm;
+		document.customerContext=customerContext;
+		document.themeId=themeId;
+		document.contextType = "constraint.context.type.campaign";
+		document.queueContextType = "constraint.context.type.queue";
+		document.registrationPageType = "default";
+		document.dimServiceEndPointUrl = getBaseUrl();
+		document.screenMode=screenMode;
+		document.GAUID=GAUID;
+		document.phoneRegex=phoneRegex;
+}
+
+	initializeChat();
+	
+	// utility
+	function getParameterByName(variable, url) {
+		
+	    if (!url) url = window.location.href;
+	    
+	        var query = window.location.search.substring(1);
+	        var vars = query.split('&');
+	        for (var i = 0; i < vars.length; i++) {
+	            var pair = vars[i].split('=');
+	            if (decodeURIComponent(pair[0]) == variable) {
+	                return decodeURIComponent(pair[1]);
+	            }
+	        }
+	        console.log('Query variable %s not found', variable);
+	    /* name = name.replace(/[\[\]]/g, "\\$&");
+	    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+	        results = regex.exec(url);
+	    if (!results) return null;
+	    if (!results[2]) return '';
+	    return decodeURIComponent(results[2].replace(/\+/g, " ")); */
+	}
+	
+	function getBaseUrl(){
+		var url=window.location.origin;
+		if(!url){
+			url="http://127.0.0.1:8888/";
+			console.warn("initializing chat with localhost url");
+		}
+		return url;
+	}
+	
+	
+	window.addEventListener("blur",function(){
+		self.focus();
+	});
+	
+</script>
+
+</head>
+
+<body marginwidth="1" marginheight="1">
+	<div id="chat_window"></div>
+	<iframe src="./saved_resource.html" id="__gwt_historyFrame" tabindex="-1" style="position: absolute; width: 0; height: 0; border: 0"></iframe>
+
+<iframe id="embeddedChatXS" tabindex="-1" style="position: absolute; width: 0px; height: 0px; border: none; left: -1000px; top: -1000px;" src="./saved_resource(2).html"></iframe><div style="clear: both; display: block;"></div><div class="chatBox" style="border-width: 0px; border-style: solid; z-index: 1000;"><div class="chat-initiation"><div class="chat-initiation__icon"><i class="mdi mdi-message"></i></div><div class="chat-initiation-text"><p class="chat-initiation-text__heading">Let's Chat!</p></div></div></div></body></html>

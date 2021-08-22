@@ -1,0 +1,1451 @@
+/////////////////////////////////////////DETAILS AND CART ////////////////////////////////////////////////
+
+$(document).ready(function(){
+	
+	$('#add2cart').click(function(event){
+
+		event.preventDefault();
+		var colombiaPixelURL = 'https://ade.clmbtech.com/cde/eventTracking.htm?pixelId=6762&_w=1&rd='+new Date().getTime();
+		new Image().src = colombiaPixelURL;
+		var product_id = $('#add2cart').attr('data-product-id');
+		add2cart(product_id);
+	});
+
+	$('#add2cartvas').click(function(event){
+
+		event.preventDefault();
+		var product_id = $('#add2cart').attr('data-product-id');
+		add2cartvas(product_id);
+	});
+
+	// $('.delete_cart').click(function(event){
+
+	// 	event.preventDefault();
+	// 	var product_id = $(this).attr('data-product-id');
+	// 	delete_cart(product_id);
+	// });
+
+	$('.removeFromCart').click(function(event){
+
+		event.preventDefault();
+		var product_id = $(this).attr('data-product-id');
+		delete_cart(product_id);
+	});
+
+	$('.save_cart').click(function(event){
+
+		event.preventDefault();
+		var product_id = $(this).attr('data-product-id');
+		save_cart(product_id);
+	});
+
+	$('.add-to-cart-savecart').click(function(e){
+
+        e.preventDefault();
+        var id = $(this).attr('data-id');
+        add_to_cart_savecart(id);
+    });
+
+    $('.remove-save-cart').click(function(e){
+
+        e.preventDefault();
+        var id = $(this).attr('data-id');
+        delete_cart(id);
+    });
+
+    $('#add-to-compare').click(function(e){
+
+    	e.preventDefault();
+    	var id = $(this).attr('data-id');
+    	addToCompare(id);
+    })
+
+    $('.remove-vas-cart').click(function(e){
+    	e.preventDefault();
+    	var cart_id = $(this).val();
+    	var vas_id  = $(this).attr('data-vas-id');
+    	removeVasToProduct(cart_id , vas_id);
+    })
+
+})
+
+$(document).on('click', '#buyNow' , function(e){
+
+	var checkTracking = false;
+ 	e.preventDefault();
+ 	
+ 	var colombiaPixelURL = 'https://ade.clmbtech.com/cde/eventTracking.htm?pixelId=6761&_w=1&rd='+new Date().getTime();
+ 	new Image().src = colombiaPixelURL;
+ 	checkTracking = true;
+	
+ 	if(checkTracking == false){ 
+
+ 		var colombiaPixelURL = 'https://ade.clmbtech.com/cde/eventTracking.htm?pixelId=6761&_w=1';
+ 		new Image().src = colombiaPixelURL;
+ 	}
+
+	var id = $(this).attr('data-product-id');
+	setTimeout(function() {
+
+		buyNow(id);
+    }, 1000);
+})
+
+$(document).on('click', '#bookNow' , function(e){
+
+ 	e.preventDefault();
+
+	var colombiaPixelURL = 'https://ade.clmbtech.com/cde/eventTracking.htm?pixelId=6761&_w=1&rd='+new Date().getTime();
+	new Image().src = colombiaPixelURL;
+	var id = $(this).attr('data-product-id');
+	buyNow(id);
+})
+
+$(document).on('click', '#btnCheckLocationShip', function(event){
+
+	event.preventDefault();
+	var product_id  = $(this).attr('data-product-id');
+    check_pincode(product_id);
+
+})
+
+function add2cart(product_id){
+	
+	var formData = new FormData();
+	formData.append('product_id',product_id);
+
+	// if($('#vas-checked').prop('checked') == true ){
+
+	// 	formData.append('vas-package','1');
+	// }
+
+	var pathname = window.location.pathname;
+    var pathArray = pathname.split('/');
+
+    var filtered = pathArray.filter(function (el) {
+      return el != '';
+    });
+
+    console.log(filtered[0]);
+
+	$.ajax({
+
+		type  : 'POST',
+		dataType : 'JSON',
+		url   : baseURL+'add2cart',
+		cache : false,
+		contentType : false,
+		processData : false,
+		data  : formData
+
+	}).done(function(json){
+
+		if(json.status){
+
+			if(filtered[0] == 'product-details'){
+                var prodName    = $('.product-name').html();
+                var prodPrice   = $('.p-d-price').text().trim();
+                var prodSku     = $('#add2cart').attr('data-product-id');
+            }else{
+                var prodName    = $('.product-' + a).find('.mtb-title').text();
+                var prodPrice   = $('.product-' + a).find('.price').text();
+                var prodSku     = a;
+            }
+
+            // console.log('SKU ' + prodSku);
+            // console.log('prodName ' + prodName);
+            // console.log('prodPrice ' + prodPrice);
+            // console.log('prodPrice ' + Number(prodPrice).toFixed(2));
+
+            dataLayer.push({
+                'event': 'addToCart',
+                'ecommerce': {
+                    'currencyCode': 'INR',
+                    'add': {                                
+                        'products': [{
+                            'name': prodName,
+                            'id': prodSku,
+                            'price': prodPrice,
+                            'quantity': 1
+                        }]
+                    }
+                },
+                'btnClass': 'add-2-cart'
+            });
+
+            //track_event('addTocart');
+
+            fbq('track', 'AddToCart', {
+               
+               content_name: prodName,
+               contents: [{id: prodSku, quantity : 1}],
+               content_type: 'product',
+               value: Number(prodPrice).toFixed(2),
+               currency: 'INR',
+            }); 
+
+			setTimeout(function(){ window.location.href = baseURL+json.url_forward; }, 2000);
+
+		}else{
+
+			custom_alert(json.message,'error');
+		}
+	});
+}
+
+
+function add2cartvas(product_id){
+	
+	var formData = new FormData();
+	formData.append('product_id',product_id);
+
+	// if($('#vas-checked').prop('checked') == true ){
+
+	// 	formData.append('vas-package','1');
+	// }
+
+	$vasArray = [];
+	   
+    $('input[name="vas-checked"]').each(function(){
+        if($(this).prop('checked')){
+            $vasArray.push($(this).val())
+        }
+    });
+    
+    formData.append('vas-package', JSON.stringify($vasArray));
+
+	$.ajax({
+
+		type  : 'POST',
+		dataType : 'JSON',
+		url   : baseURL+'add2cart',
+		cache : false,
+		contentType : false,
+		processData : false,
+		data  : formData
+
+	}).done(function(json){
+
+		if(json.status){
+
+			window.location.href = baseURL+json.url_forward;
+
+		}else{
+
+			custom_alert(json.message,'error');
+		}
+	});
+}
+
+function buyNow(product_id){
+	var formData = new FormData();
+	formData.append('product_id',product_id);
+	formData.append('page_name','buynow');
+
+	if($('#vas-checked').prop('checked') == true ){
+
+		formData.append('vas-package','1');
+	}
+
+	$.ajax({
+
+		type  : 'POST',
+		dataType : 'JSON',
+		url   : baseURL+'add2cart',
+		cache : false,
+		contentType : false,
+		processData : false,
+		data  : formData
+
+	}).done(function(json){
+
+		if(json.status){
+
+			var prodName    = $('.product-name').html();
+            var prodPrice   = $('.p-d-price').text().trim();
+            var prodSku     = $('#add2cart').attr('data-product-id');
+
+			fbq('track', 'AddToCart', {
+               
+               content_name: prodName,
+               contents: [{id: prodSku, quantity : 1}],
+               content_type: 'product',
+               value: Number(prodPrice).toFixed(2),
+               currency: 'INR',
+            }); 
+
+			window.location.href = baseURL+json.url_forward;
+
+		}else{
+
+
+			if(json.url_forward != ''){
+
+				custom_alert(json.message, 'error', 'Login', 'login');
+				//setTimeout(function() { window.location.href = baseURL+json.url_forward;  }, 1000);
+			}
+
+			if(!json.url_forward){
+
+				custom_alert(json.message, 'error');
+				//setTimeout(function() { window.location.href = baseURL+json.url_forward;  }, 5000);
+			}
+		}
+	});
+}
+
+function delete_cart(id){
+
+	var formData = new FormData();
+	formData.append('id', id);
+
+	$.ajax({
+
+		type : 'POST',
+		dataType : 'JSON',
+		url : baseURL+"cart-delete",
+		cache : false,
+		contentType : false,
+		processData : false,
+		data : formData
+	
+	}).done(function(json){
+
+		if(json.status){
+
+			window.location.reload(true);
+		}else{
+
+		}
+	})
+}
+
+function save_cart(product_id){
+
+	var formData = new FormData();
+	formData.append('product_id',product_id);
+
+	$.ajax({
+
+		type  : 'POST',
+		dataType : 'JSON',
+		url   : baseURL+'save2cart',
+		cache : false,
+		contentType : false,
+		processData : false,
+		data  : formData
+
+	}).done(function(json){
+
+		if(json.status){
+
+			window.location.reload(true);
+
+		}else{
+
+			custom_alert(json.message);
+		}
+	});
+}
+
+function add_to_cart_savecart(id){
+
+	var formData = new FormData();
+	formData.append('id',id);
+
+	$.ajax({
+
+		type  : 'POST',
+		dataType : 'JSON',
+		url   : baseURL+'save2addcart',
+		cache : false,
+		contentType : false,
+		processData : false,
+		data  : formData
+
+	}).done(function(json){
+
+		if(json.status){
+
+			window.location.href = baseURL+json.url_forward;
+
+		}else{
+
+			custom_alert(json.message);
+		}
+	});
+}
+
+function returnPage(){
+
+    window.location.href = baseURL;
+}
+
+function returnPageCheckout(id){
+
+	if(id == 1){
+
+		var colombiaPixelURL = 'https://ade.clmbtech.com/cde/eventTracking.htm?pixelId=6760&_w=1&rd='+new Date().getTime();
+		new Image().src = colombiaPixelURL;
+		
+
+		setTimeout(function() {
+
+	  		 window.location.href = baseURL + 'checkout';
+        }, 1000);
+	}else{
+
+		custom_alert('Sorry! Product now reached Out Of Stock', 'error');
+		return false;
+	}
+}
+
+$(document).ready(function(){
+   $('.quantity-right-plus').click(function(e){
+        e.preventDefault();
+        var cartId = $(this).attr('cartId');
+        var quantity = parseInt($('#quantity'+cartId).val());            
+        $('#quantity'+cartId).val(quantity + 1);  
+        update_cart_item(cartId, $('#quantity'+cartId).val());
+    });
+
+    $('.quantity-left-minus').click(function(e){
+        e.preventDefault();
+        var cartId = $(this).attr('cartId');
+        var quantity = parseInt($('#quantity'+cartId).val());
+
+        if(quantity > 1){
+        $('#quantity'+cartId).val(quantity - 1);
+        }
+        update_cart_item(cartId, $('#quantity'+cartId).val());
+    });    
+});
+
+function update_cart_item(id,quantity){
+
+	var formData  = new FormData();
+
+	formData.append('id', id);
+	formData.append('quantity', quantity);
+
+	$.ajax({
+
+		type : 'POST',
+		dataType : 'JSON',
+		url : baseURL+'update-cart-item',
+		cache : false,
+		contentType : false,
+		processData : false,
+		data : formData
+
+	}).done(function(json){
+
+		if(json.status){
+
+			$('#cart_total').html(json.cart_total);
+			$('#cart_total1').html(json.cart_total);
+			$('#total'+id).html(json.data.total_amount);
+
+		}else{
+
+			custom_alert(json.message, 'error');
+			$('#quantity'+id).val(quantity-1);
+		}
+	})
+}
+
+function get_product(code){
+
+	var formData = new FormData();
+
+	formData.append('product_code', code);
+
+	$.ajax({
+
+		type : 'POST',
+		dataType : 'JSON',
+		url : baseURL+'get_product',
+		cache : false,
+		contentType : false,
+		processData : false,
+		data : formData
+
+	}).done(function(json){
+
+		if(json.status){
+
+			window.location.href=json.url_forward;
+
+		}else{
+
+			window.location.reload(true);
+		}
+	})
+}
+
+function check_pincode(id){
+
+	var formData    = new FormData();
+	var statusHTML  = 'pincode-status';
+	var pincode     = $('#txtPincode').val();
+
+	if(pincode.length != 6){
+
+	   $('#'+statusHTML).html('<span style="color: red;">Please Enter Valid Pincode</span>');
+       statusHide(statusHTML);
+       return;
+	}
+
+	$("#btnCheckLocationShip").val("Please wait...");
+    $("#btnCheckLocationShip").attr("disabled", true);
+
+	formData.append('pincode', pincode);
+	formData.append('product_id', id);
+
+	$.ajax({
+
+		type : 'POST',
+		dataType : 'JSON',
+		url : baseURL+'check-pincode',
+		cache : false,
+		contentType : false,
+		processData : false,
+		data : formData
+
+	}).done(function(json){
+
+		$("#btnCheckLocationShip").val("Check");
+        $("#btnCheckLocationShip").attr("disabled", false);
+
+		if(json.status){
+
+		   $('#'+statusHTML).html('<img src="'+json.image+'"> &nbsp;<span style="color: green;">'+json.message+'</span>');
+	       // statusHide(statusHTML);
+	       return;
+
+		}else{
+
+		   $('#'+statusHTML).html('<span style="color: red;">'+json.message+'</span>');
+	       statusHide(statusHTML);
+	       return;
+
+		}
+	})
+}
+
+
+function statusHide(id){
+
+    setTimeout(function(){
+    $('#'+id).html('');}, 4000);
+}
+
+function addToCompare(id){
+
+	$compareHTML ='';
+	$('#compare_div').html($compareHTML);
+
+	var formData    = new FormData();
+	var id          = id;
+	formData.append('product_id', id);
+
+	$.ajax({
+
+		type : 'POST',
+		dataType : 'JSON',
+		url : baseURL+'add-to-compare',
+		cache : false,
+		contentType : false,
+		processData : false,
+		data : formData
+
+	}).done(function(json){
+
+		if(json.status){
+
+			if(json.add_to_compare == 1){
+
+				$('#add-to-compare').html('<i class="fa fa-balance-scale"></i>Remove')
+			}
+			if(json.add_to_compare == 0){
+
+				$('#add-to-compare').html('<i class="fa fa-balance-scale"></i><span> Add to Compare</span>');
+				$('#compare_return_id').html('');
+			}
+
+		   if(json.compare_product_list != ""){
+
+		   		$compareHTML += '<div class="row">';
+		   		for( var i=0; i < json.compare_product_list.length; i++){
+
+		   			$compareHTML += '<div class="col-md-4"> <div class="compare--div">';
+                                $compareHTML += '<img src="'+json.compare_product_list[i].image+'" alt="mobile" class="img-fluid mx-auto">';
+                                $compareHTML += '<p class="mbl-name" id="product-name">'+json.compare_product_list[i].product_name+'</p>';
+                    $compareHTML += '</div></div>';
+		   		}
+                $compareHTML += '</div>';
+                $compareHTML += '<div class="row">';
+                $compareHTML +='<div class="col-12"><p class="text-left"><button class="default-btn cart-bttn button-compare" id="button-compare" data-id="">Go to Compare <span id="return_modal_id">'+json.compare_count+'</span></button></p></div>';
+                $compareHTML += '</div>';
+
+                $('#compare_div').append($compareHTML);
+		   		$('#myModal-compare').modal('show');
+		   		$('#compare_return_id').html('<button class="default-btn cart-bttn button-compare" id="button-compare" data-id="">Go to Compare <span id="">'+json.compare_count+'</span></button>');
+		   }
+
+		}
+		else
+		{
+		   custom_alert(json.message, 'error');       
+		}
+	})
+}
+
+$(document).on('click', '.button-compare',function(event){
+
+	event.preventDefault();
+	window.location.href = baseURL + 'product-compare';
+
+})
+
+function check_function(color){
+
+	$('#color-name').html('<b>' + color + '</b>');
+}
+
+$(document).on('change', '.plan-check-box', function(e){
+
+	event.preventDefault();
+	$vasPackageHTML ='';
+	$('#vas-package-amount-div').html($vasPackageHTML);
+
+	if($('input[name="vas-checked"]').on('change') || $('input[name="vas-checked"]').prop('checked' == true)){
+
+		$vasArray = [];
+	   
+	    $('input[name="vas-checked"]').each(function(){
+	        if($(this).prop('checked')){
+	            $vasArray.push($(this).val())
+	        }
+	    });
+
+		var formData    = new FormData();
+		var id          = $('#add2cart').attr('data-product-id');;
+		formData.append('product_id', id);
+		formData.append('vas-id', JSON.stringify($vasArray));
+
+		$.ajax({
+
+			type : 'POST',
+			dataType : 'JSON',
+			// url : baseURL+'product-price-with-protection-plan-price-web',
+			url : baseURL+'yts/product_price_with_protection_plan_price_web',
+			cache : false,
+			contentType : false,
+			processData : false,
+			data : formData
+
+		}).done(function(json){
+
+			if(json.status){
+
+				$vasPackageHTML ='';
+		        $('#vas-package-amount-div').html($vasPackageHTML);
+				$('#vas-package-div').attr('hidden', false);
+				$('#vas-package-amount-div').attr('hidden', false);
+				$('#add2cartvas').attr('disabled', false);
+
+				$vasPackageHTML += '<div class="col-lg-3">';
+                    $vasPackageHTML += '<span>Product Price</span>';
+                    $vasPackageHTML += '<p ><i class="fa fa-inr"></i> '+ Math.round(json.data['product_price']) +' </p>';
+                $vasPackageHTML += ' </div>';
+                $vasPackageHTML += '<div class="col-lg-1 mt-10">';
+                    $vasPackageHTML += '<span> + </span>         ';
+                $vasPackageHTML += ' </div>';
+                $vasPackageHTML += '<div class="col-lg-3">';
+                    $vasPackageHTML += '<span>Protection Plan Price</span>';
+                    $vasPackageHTML += '<p ><i class="fa fa-inr"></i>  '+Math.round(json.data['protection_plan_amount'])+' </p>';
+                $vasPackageHTML += '</div>';
+                $vasPackageHTML += '<div class="col-lg-1 mt-10">';
+                    $vasPackageHTML += '<span>=</span>';
+                    $vasPackageHTML += '<p></p> ';
+                $vasPackageHTML += '</div> ';
+                $vasPackageHTML += '<div class="col-lg-3">';
+                    $vasPackageHTML += '<span>Total Price</span>';
+                    $vasPackageHTML += '<p ><i class="fa fa-inr"></i> '+Math.round(json.data['amount_payable'])+'</p>';
+                $vasPackageHTML += '</div>';
+
+                $('#vas-package-amount-div').append($vasPackageHTML);
+		   		// $('#compare_return_id').html('<button class="default-btn cart-bttn button-compare" id="button-compare" data-id="">Go to Compare <span id="">'+json.compare_count+'</span></button>');
+
+			}else{
+
+				$('#vas-package-div').attr('hidden', true);
+				$('#vas-package-amount-div').attr('hidden', true);
+				$('#add2cartvas').attr('disabled', true);
+      
+			}
+		})
+
+	}else{
+
+		$('#vas-package-div').attr('hidden', true);
+		$('#vas-package-amount-div').attr('hidden', true);
+		$('#add2cartvas').attr('disabled', true);
+
+	}
+})
+
+$(document).ready(function(){
+
+	// event.preventDefault();
+	$vasPackageHTML ='';
+	$('#vas-package-amount-div').html($vasPackageHTML);
+
+    $vasArray = [];
+
+	$('input[name="vas-checked"]').each(function(){
+	        if($(this).prop('checked')){
+	            $vasArray.push($(this).val())
+	        }
+	    });
+
+
+	if($vasArray.length > 0 ){
+
+		var formData    = new FormData();
+		var id          = $('#add2cart').attr('data-product-id');;
+		formData.append('product_id', id);
+		
+	   
+	    
+
+	    formData.append('vas-id', JSON.stringify($vasArray));
+
+		$.ajax({
+
+			type : 'POST',
+			dataType : 'JSON',
+			url : baseURL+'product-price-with-protection-plan-price-web',
+			cache : false,
+			contentType : false,
+			processData : false,
+			data : formData
+
+		}).done(function(json){
+
+			if(json.status){
+
+				$vasPackageHTML ='';
+		        $('#vas-package-amount-div').html($vasPackageHTML);
+				$('#vas-package-div').attr('hidden', false);
+				$('#vas-package-amount-div').attr('hidden', false);
+				$('#add2cartvas').attr('disabled', false);
+
+				$vasPackageHTML += '<div class="col-lg-3">';
+                    $vasPackageHTML += '<span>Product Price</span>';
+                    $vasPackageHTML += '<p ><i class="fa fa-inr"></i> '+ Math.round(json.data['product_price']) +' </p>';
+                $vasPackageHTML += ' </div>';
+                $vasPackageHTML += '<div class="col-lg-1 mt-10">';
+                    $vasPackageHTML += '<span> + </span>         ';
+                $vasPackageHTML += ' </div>';
+                $vasPackageHTML += '<div class="col-lg-3">';
+                    $vasPackageHTML += '<span>Protection Plan Price</span>';
+                    $vasPackageHTML += '<p ><i class="fa fa-inr"></i>  '+Math.round(json.data['protection_plan_amount'])+' </p>';
+                $vasPackageHTML += '</div>';
+                $vasPackageHTML += '<div class="col-lg-1 mt-10">';
+                    $vasPackageHTML += '<span>=</span>';
+                    $vasPackageHTML += '<p></p> ';
+                $vasPackageHTML += '</div> ';
+                $vasPackageHTML += '<div class="col-lg-3">';
+                    $vasPackageHTML += '<span>Total Price</span>';
+                    $vasPackageHTML += '<p ><i class="fa fa-inr"></i> '+Math.round(json.data['amount_payable'])+'</p>';
+                $vasPackageHTML += '</div>';
+
+                $('#vas-package-amount-div').append($vasPackageHTML);
+		   		// $('#compare_return_id').html('<button class="default-btn cart-bttn button-compare" id="button-compare" data-id="">Go to Compare <span id="">'+json.compare_count+'</span></button>');
+
+			}else{
+
+				$('#vas-package-div').attr('hidden', true);
+				$('#vas-package-amount-div').attr('hidden', true);
+				$('#add2cartvas').attr('disabled', true);
+      
+			}
+		})
+
+	}else{
+
+		$('#vas-package-div').attr('hidden', true);
+		$('#vas-package-amount-div').attr('hidden', true);
+		$('#add2cartvas').attr('disabled', true);
+
+	}
+})
+
+// $('#share-facebooknew').on('click', function() {
+$(document).on('click', '.share-facebooknew', function() {
+
+var u = location.href;
+var t = document.title;
+var d = $("[property='og:description']").attr("content");
+var img = $("[property='og:image']").attr("content");
+sharePopup('https://www.facebook.com/dialog/share?app_id=2335624546570168&display=popup&href=' + u + '&title=' + t + '&picture=' + img + '&description=' + d);
+// elem = $(this);
+return false;
+});
+
+function sharePopup(url) {
+    var width = 600;
+    var height = 400;
+    var leftPosition, topPosition;
+    leftPosition = (window.screen.width / 2) - ((width / 2) + 10);
+    topPosition = (window.screen.height / 2) - ((height / 2) + 50);
+    var windowFeatures = "status=no,height=" + height + ",width=" + width + ",resizable=yes,left=" + leftPosition + ",top=" + topPosition + ",screenX=" + leftPosition + ",screenY=" + topPosition + ",toolbar=no,menubar=no,scrollbars=no,location=no,directories=no";
+    window.open(url, 'Social Share', windowFeatures);
+}
+
+///////
+
+function getLocation() 
+{
+    if (navigator.geolocation) 
+	{
+		navigator.geolocation.getCurrentPosition(success)
+	}
+    else 
+    { 
+        console.log("Geolocation is not supported by this browser");
+	}
+}
+
+function getStoreLocation() 
+{
+    if (navigator.geolocation) 
+  {
+
+    navigator.geolocation.watchPosition(successPos)
+  }
+    else 
+    { 
+        console.log("Geolocation is not supported by this browser");
+  }
+}
+
+function successPos(pnt)
+{
+  var crd = pnt.coords;
+  $('#my-lat').val(crd.latitude);
+  $('#my-lng').val(crd.longitude);
+}
+
+function success(pos) {
+
+  var crd = pos.coords;
+
+  $lat = crd.latitude;
+  $lng = crd.longitude;
+  
+  console.log(`Latitude : ${crd.latitude}`);
+   console.log(`Longitude: ${crd.longitude}`);
+  // console.log(`More or less ${crd.accuracy} meters.`);
+  var formData  = new FormData();
+  formData.append('lat', crd.latitude);
+  formData.append('lan', crd.longitude);
+  formData.append('web', '1');
+  formData.append('type', '1');
+  $.ajax({
+        type: "POST",
+        dataType: "json",
+        url: baseURL+'get-store-lat-lng-list',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: formData
+    })
+    .done(function(json){
+        
+        var append ='';
+        if (json.status){
+
+          $("#txtPincode").val(json.data['pincode']);
+    	  $('#btnCheckLocationShip').click();
+       
+        }else{
+
+        }
+        
+    });
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+$(document).on('click', '.submit-form', function(e){
+
+	e.preventDefault();
+	submitForm();
+})
+
+$(document).on('click', '.submit-form-store', function(e){
+
+	e.preventDefault();
+	submitForm1();
+})
+
+var selectedType = "google_meet";
+var selectedStore = "";
+
+$(document).on('click', '.virtual__appointment_1', function(e){
+
+  selectedType = $(this).attr('data-value');
+  //console.log(selectedType);
+
+})
+
+$(document).on('click','.instore__appointment_1', function(e){
+    e.preventDefault();
+   $(this).addClass('selectImag');
+    $(this).siblings().each(function(){
+        $(this).removeClass('selectImag') ;
+    
+    });
+	
+	selectedStore = $(this).attr('data-value');
+
+});
+
+function submitForm(){
+
+	var formData = new FormData();
+
+	var chattype   = selectedType;//$('.virtual__appointment_1').attr('data-value');
+	var name       = $('#username').val();
+	var email      = $('#useremail').val();
+	var mobile     = $('#usermobile').val();
+	var language   = $('#language').val();
+	var model      = $('#model').val();
+	var reason     = $('#reason').val();
+	var phone_interested = $('#user_phone_interested').val();
+
+	formData.append('name', name);
+	formData.append('email', email);
+	formData.append('mobile', mobile);
+	formData.append('language', language);
+	formData.append('model', model);
+	formData.append('chattype', chattype);
+	formData.append('type', '2');
+	formData.append('is_web', '1');
+	formData.append('reason', reason);
+	formData.append('phone_interested', phone_interested);
+
+
+	//console.log(chattype);
+	 $(".submit-form").html("Please wait...");
+     $(".submit-form").attr("disabled", true);
+
+	$('#error-status').html('');
+	$.ajax({
+        type: "POST",
+        dataType: "json",
+        url: baseURL+'submit-user-form-details',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: formData
+    })
+    .done(function(json){
+
+    	$(".submit-form").html("Submit");
+        $(".submit-form").attr("disabled", false);
+        
+        if (json.status){
+            
+            $('#san__modal-02').modal('show');
+            setTimeout(function(){
+    		window.location.reload(true);}, 4000);
+       		
+         }else{
+    		
+    		$('#error-status').html('<span style="color: red"; float:right>' + json.message + '</span>');
+         }
+        
+    });
+}
+
+
+function submitForm1(){
+
+	var formData = new FormData();
+
+	var chattype   = selectedStore;//$('.virtual__appointment_1').attr('data-value');
+	var name       = $('#user-name').val();
+	var email      = $('#user-email').val();
+	var mobile     = $('#user-mobile').val();
+	var language   = $('#language').val();
+	var model      = $('#store-model').val();
+	var date       = $('#reservationDate').val();
+	var time       = $('#time').val();
+	var phone_interested = $('#phone_interested').val();
+
+	formData.append('name', name);
+	formData.append('email', email);
+	formData.append('mobile', mobile);
+	formData.append('language', language);
+	formData.append('model', model);
+	formData.append('storeid', chattype);
+	formData.append('date', date);
+	formData.append('time', time);
+	formData.append('type', '1');
+	formData.append('is_web', '1');
+	formData.append('phone_interested', phone_interested);
+
+	//console.log(chattype);
+	 $(".submit-form-store").html("Please wait...");
+     $(".submit-form-store").attr("disabled", true);
+
+	$('#error-status').html('');
+	$.ajax({
+        type: "POST",
+        dataType: "json",
+        url: baseURL+'submit-user-form-details',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: formData
+    })
+    .done(function(json){
+
+    	$(".submit-form-store").html("Submit");
+        $(".submit-form-store").attr("disabled", false);
+        
+        if (json.status){
+            
+            $('#san__modal2').modal('show');
+
+            $('#store-name').html('<b>Store:</b>'+json.data['store_name']);
+            $('#store-address').html('<b>Store Address:</b>'+json.data['address']);
+            setTimeout(function(){
+    		window.location.reload(true);}, 5000);
+       		
+         }else{
+    		
+    			
+    		$('#error-status-store').html('<span style="color: red"; float:right>' + json.message + '</span>');
+
+         }
+        
+    });
+}
+ $('#searchstore').keyup(function(){
+ 
+ 	 if($('#searchstore').val().length >= 2){
+
+       //$("#ShowSearchStoreResultBox").show();
+        loadSearchStoreData(0,2);
+	 }
+ });
+
+function loadSearchStoreData(requestStart,requestLimt){    
+
+	var formData  = new FormData();
+	formData.append('searchData', $('#searchstore').val());
+	formData.append('requestStart', requestStart);
+	formData.append('requestLimt', requestLimt);
+	formData.append('searchtype','1');
+	$('#show-store-details').html('');
+    $.ajax({
+        type: "POST",
+        dataType: "json",
+        url: baseURL+'get-search-store-result',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: formData
+    })
+    .done(function(json){
+        var append ='';
+        if (json.status){
+
+        	append += '<h3 class="login-heading">Nearest Store:</h3>';
+           for (var i = 0; i < json.data.length; i++){
+
+                // append +='<li class="result-entry hide-data" data-suggestion="Target 1" data-position="1" data-type="type" data-analytics-type="merchant"><a href="#get_location" class="result-link get_location" data-id="'+json.data[i]['store_id']+'"><h4 class="media-heading">'+json.data[i]['store_address']+'</h4></a></li>';
+                $text ="";
+                if(i==0){
+
+                	$text = "selectImag";
+                }
+                append += '<div class="col-12 instore__appointment_1 '+$text+'" data-value="'+json.data[i]['store_id']+'">';
+                    append += '<div class="instore__appointment appointment-001">';
+                        append += '<a href="javascript:void(0)" class="w-100">';
+                            append += '<div class="san_container">';
+                                append += '<div class="img-wrappr">';
+                                    append += '<img src="'+baseURL+'assets/images/san-store.png" class="img-fluid" />';
+                                append += '</div>';
+                                append += '<div class="modal-data_san">';
+                                    append += '<h6 class="title-001">Sangeetha Mobiles Store</h6>';
+                                    append += '<p class="mb-0">'+json.data[i]['store_address']+'</p>';
+                                    append += '<!-- <i class="fa fa-calendar"></i> Book your Appointment -->';
+                                append += '</div>';
+                                append += '<div class="san__direction">';
+                                    append += '<!--<b><i class="fa fa-map-o text-primary"></i> store Direction:</b> 1.5 KM -->';
+                                append += '</div>';
+                            append += '</div>';
+                        append += '</a>';
+                    append += '</div>';
+                append += '</div>';
+             }
+
+            $('#show-store-details').html(append);  
+          }else{
+            $textmessage ="Unfortunately Sangeetha showroom is not available in your vicinity, however you can choose a store by typing Pincode";
+    		
+    		append += '<h3 class="login-heading">Nearest Store:</h3>';
+                append += '<div class="col-12 instore_appointment_1">';
+                    append += '<div class="instore__appointment appointment-001">';
+                        append += '<a href="javascript:void(0)" class="w-100">';
+                            append += '<div class="san_container">';
+                                append += '<div class="img-wrappr">';
+                                    append += '<img src="'+baseURL+'assets/images/san-store.png" class="img-fluid" />';
+                                append += '</div>';
+                                append += '<div class="modal-data_san">';
+                                    append += '<h6 class="title-001">Sangeetha Mobiles Store</h6>';
+                                    append += '<p class="mb-0">'+$textmessage+'</p>';
+                                    append += '<!-- <i class="fa fa-calendar"></i> Book your Appointment -->';
+                                append += '</div>';
+                                append += '<div class="san__direction">';
+                                    append += '<!--<b><i class="fa fa-map-o text-primary"></i> store Direction:</b> 1.5 KM -->';
+                                append += '</div>';
+                            append += '</div>';
+                        append += '</a>';
+                    append += '</div>';
+                append += '</div>';
+
+            $('#show-store-details').html(append); 
+         }
+        
+     });
+ }
+
+ $(document).ready(function(){
+
+ 	 //e.preventDefault();
+ 	 var make_id = $('#make :selected').val();
+ 	 var formData = new FormData();
+
+ 	 formData.append('make_id', make_id);
+
+ 	 $.ajax({
+        type: "POST",
+        dataType: "json",
+        url: baseURL+'get-model-list',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: formData
+    })
+    .done(function(json){
+        var appendHTML ='';
+        if (json.status){
+
+        	 var appendHTML = '';
+                 appendHTML += '<option value="" disabled>-- Select Model --</option>';
+
+                if (json.data.length > 0) {
+
+                    for (i = 0; i < json.data.length; i++) {
+
+                    	$text = "";
+
+                    	if(json.data[i]['id'] == $('#selected-model-id').val()){
+
+                    		$text = "selected";
+                    	}
+
+                        appendHTML += '<option value="' + json.data[i]["model_name"] + '" '+$text+'>' + json.data[i]["model_name"]+ '</option>';
+                    }
+                }
+
+                $("#model").html(appendHTML);
+                $("#store-model").html(appendHTML);
+   		}else{
+
+   		}
+   	})
+ })
+
+$(document).on('change', '#make', function(e){
+
+  	e.preventDefault();
+ 	var make_id = $('#make').val();
+ 	var formData = new FormData();
+
+ 	formData.append('make_id', make_id);
+
+ 	$.ajax({
+        type: "POST",
+        dataType: "json",
+        url: baseURL+'get-model-list',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: formData
+    })
+    .done(function(json){
+        var appendHTML ='';
+        $("#model").html(appendHTML);
+        if (json.status){
+
+        	   var appendHTML = '';
+                 appendHTML += '<option value="" disabled>-- Select Model --</option>';
+
+                if (json.data.length > 0) {
+
+                    for (i = 0; i < json.data.length; i++) {
+
+                        appendHTML += '<option value="' + json.data[i]["model_name"] + '">' + json.data[i]["model_name"]+ '</option>';
+                    }
+                }
+
+                $("#model").html(appendHTML);
+                $('#model').selectpicker('refresh');
+   		}else{
+
+   		}
+   	})
+})
+
+$(document).on('change', '#store-make', function(e){
+
+  	e.preventDefault();
+ 	var make_id = $('#store-make').val();
+ 	var formData = new FormData();
+
+ 	formData.append('make_id', make_id);
+
+ 	$.ajax({
+        type: "POST",
+        dataType: "json",
+        url: baseURL+'get-model-list',
+        cache: false,
+        contentType: false,
+        processData: false,
+        data: formData
+    })
+    .done(function(json){
+        var appendHTML ='';
+        if (json.status){
+
+        	   var appendHTML = '';
+                 appendHTML += '<option value="" selected disabled>-- Select Model --</option>';
+
+                if (json.data.length > 0) {
+
+                    for (i = 0; i < json.data.length; i++) {
+
+                        appendHTML += '<option value="' + json.data[i]["model_name"] + '">' + json.data[i]["model_name"]+ '</option>';
+                    }
+                }
+
+                $("#store-model").html(appendHTML);
+   		}else{
+
+   		}
+   	})
+})
+
+
+function removeVasToProduct(cart_id , vas_id)
+{
+	var formData = new FormData();
+	formData.append('cart_id',cart_id);
+	formData.append('vas_id',vas_id);
+	$.ajax({
+		type  : 'POST',
+		dataType : 'JSON',
+		url   : baseURL+'remove-vas-cart',
+		cache : false,
+		contentType : false,
+		processData : false,
+		data  : formData
+
+	}).done(function(json){
+
+		if(json.status){
+
+			window.location.reload(true);
+
+		}else{
+
+			custom_alert(json.message,'error');
+		}
+	});
+}
+
+
+
+$(document).on("click", ".emi_plan", function(e){
+
+    e.preventDefault();
+    var product_id  = $(this).attr("data-id");
+    get_product_emi_calculation(product_id);
+});
+
+function get_product_emi_calculation(product_id){
+
+    var formData = new FormData();
+    formData.append("id", product_id);
+
+    //$(".submit-form-store").html("Submit");
+    $(".emi_plan").attr("disabled", true);
+    $.ajax({
+
+        type  : "POST",
+        dataType : "JSON",
+        url   : baseURL+"pinelabs/get_emi_calculator",
+        cache : false,
+        contentType : false,
+        processData : false,
+        data  : formData
+
+    }).done(function(json){
+
+       $(".emi_plan").attr("disabled", false);
+
+        $appendHTML = "";
+        $("#append-emi-data").html($appendHTML);
+
+        if(json.status){
+             $appendHTML +="<div class='col-xl-4 col-lg-2 col-md-4 col-sm-3 col-3'>";
+                $appendHTML +="<div class='nav flex-column nav-pills nav-pills__custom' id='v-pills-tab' role='tablist' aria-orientation='vertical';>";
+              
+                for(var i =0; i < json.data.length; i++){
+
+                    if(i== 0){
+                        
+                        $appendHTML +=' <a class="nav-link-1 mb-2 p-2 shadow active" id="'+json.data[i]['bank_name']+'-tab" data-toggle="pill" href="#'+json.data[i]['bank_name']+'" role="tab" aria-controls="'+json.data[i]['bank_name']+'" aria-selected="true">';
+
+                    }else{
+
+                        $appendHTML +=' <a class="nav-link-1 mb-2 p-2 shadow" id="'+json.data[i]['bank_name']+'-tab" data-toggle="pill" href="#'+json.data[i]['bank_name']+'" role="tab" aria-controls="'+json.data[i]['bank_name']+'" aria-selected ="false">';
+                    }
+
+                        $appendHTML +='<i class="fa fa-vcard-o mr-2"></i>';
+                        $appendHTML +='<span class="font-weight-bold small text-uppercase">'+json.data[i]['bank_name']+'</span></a>';
+                }  
+                $appendHTML +="</div>";
+            $appendHTML +="</div>"; 
+
+             $appendHTML +='<div class="col-xl-8 col-lg-10 col-md-8 col-sm-9 col-9">';
+                $appendHTML +='<div class="tab-content" id="v-pills-tabContent">';
+                for(var i =0; i < json.data.length; i++){
+
+                    var activeCheck ="";
+                    if(i == 0){
+
+                     $appendHTML +='<div class="tab-pane fade shadow rounded bg-white show active pl-1" id="'+json.data[i]['bank_name']+'" role="tabpanel" aria-labelledby="'+json.data[i]['bank_name']+'-tab">';
+                        
+                    }else{
+
+                     $appendHTML +='<div class="tab-pane fade shadow rounded bg-white pl-1" id="'+json.data[i]['bank_name']+'" role="tabpanel" aria-labelledby="'+json.data[i]['bank_name']+'-tab">';
+
+                    }
+                         $appendHTML +='<div class="table-responsive">';
+                             $appendHTML +='<table class="table table-bordered">';
+                               $appendHTML +='<thead>';
+                                 $appendHTML +='<tr class="table-secondary">';
+                                   //$appendHTML +='<th scope="col">EMI Plan</th>';
+                                   $appendHTML +='<th scope="col">EMI Plan</th>';
+                                   $appendHTML +='<th scope="col">Months</th>';
+                                   $appendHTML += '<th scope="col">Interest</th>';
+                                   if(json.data[i]['show_discount'] == '1'){
+                                     $appendHTML += '<th scope="col">Discount</th>';
+                                   }
+                                   
+                                   $appendHTML +='<th scope="col">Overall Cost</th>';
+
+                                   //$appendHTML +='<th scope="col">Total Cost</th>';
+                                 $appendHTML +='</tr>';
+                               $appendHTML +='</thead>';
+                               $appendHTML +='<tbody>';
+                                for(var j=0; j < json.data[i]['schemes'].length; j++){
+                                   $appendHTML +='<tr>';
+                                     $appendHTML +='<th scope="row"><i class="fa fa-inr"></i> '+json.data[i]['schemes'][j]['monthly_payable']+'</th>';
+                                     $appendHTML +='<td>'+json.data[i]['schemes'][j]['month']+'</td>'; 
+                                     $appendHTML +='<td><i class="fa fa-inr"></i> '+json.data[i]['schemes'][j]['interest']+'</td>'; 
+                                     if(json.data[i]['show_discount'] == '1'){
+
+                                        $appendHTML +='<td>'+json.data[i]['schemes'][j]['discount']+'</td>'; 
+                                    }
+                                     $appendHTML +='<td><i class="fa fa-inr"></i> '+json.data[i]['schemes'][j]['overall_cost']+'</td>';                                           
+
+                                     //$appendHTML +='<td><i class="fa fa-inr"></i> 346.98 (2.17%)</td>';
+                                     //$appendHTML +='<td><i class="fa fa-inr"></i> 16336.98</td>';
+                                   $appendHTML +='</tr>';
+                                 }
+                               $appendHTML +='</tbody>';
+                             $appendHTML +='</table>';
+                         $appendHTML +='</div>';
+                         if(( json.data[i]['emi_calculation_on'] != "" ) || (json.data[i]['additional_cashback'] != "") ){
+
+                            $appendHTML +='<p> <b> Note : </b>';
+                            $appendHTML += json.data[i]['emi_calculation_on']+'.';
+                            $appendHTML += json.data[i]['additional_cashback'];
+                            $appendHTML += '</p>';
+                        }
+                         $appendHTML +='</div>';
+                }
+                $appendHTML +='</div>';
+            $appendHTML +='</div>';
+            $("#append-emi-data").html($appendHTML);
+            $("#modalView1").modal("show");
+        }else{
+
+            $("#modalView1").modal("hide");
+            custom_alert(json.message, 'error');
+
+        }
+
+    });
+}
+ 
+
+function track_event(trackEvent ="", data ="",purchase_currency="",purchase_value=""){
+
+    var trackingEventName = null;
+
+    trackingEvent = trackEvent;
+
+    if(trackingEvent != ""){
+
+        switch (trackingEvent) {
+
+          case 'addTocart':
+            trackingEventName = 'AddToCart';
+            break;
+          case 'addTowishlist':
+            trackingEventName = 'AddToWishlist';
+            break;
+          case 'registration':
+            trackingEventName = 'CompleteRegistration';
+            break;
+          case 'paymentInfo':
+            trackingEventName = 'AddPaymentInfo';
+            break;
+          case 'purchase':
+            trackingEventName = 'Purchase';
+            break;
+          default:
+        }
+    }
+
+    if(purchase_currency != "" && purchase_value != ""){
+
+    	fbq('track', trackingEventName, {currency: purchase_currency, value: purchase_value});
+
+    }else{
+
+    	fbq('track', trackingEventName);
+    }
+    console.log('Tracking Name: '+trackingEventName); 
+}
